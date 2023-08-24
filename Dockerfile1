@@ -1,0 +1,10 @@
+From ubuntu:latest
+RUN apt update -y
+RUN apt install openjdk-11-jre-headless -y
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apache-tomcat-9.0.73.tar.gz /opt/
+RUN tar -xvf /opt/apache-tomcat-9.0.73.tar.gz -C /opt/
+COPY copyfile /opt/apache-tomcat-9.0.73/conf/context.xml
+ADD https://s3-us-west-2.amazonaws.com/studentapi-cit/student.war /opt/apache-tomcat-9.0.73/webapps/
+ADD https://s3-us-west-2.amazonaws.com/studentapi-cit/mysql-connector.jar /opt/apache-tomcat-9.0.73/lib/
+EXPOSE 8080
+CMD ./opt/apache-tomcat-9.0.73/bin/startup.sh; sleep inf
