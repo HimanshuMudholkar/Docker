@@ -1,0 +1,67 @@
+1.	Launch Instance : - 
+	Name (Tommy)
+	Select (AMI : Ubuntu 20.04)
+Select (t2.micro)
+Create Key Pair
+Default VPC: -
+	Security Group: All traffic
+Storage (gp2) 
+Review and Launch
+2.	Take SSH of Instance : -
+	CLI:	sudo su
+		apt update -y
+		apt install docker.io -y
+		systemctl status docker
+		vim Dockerfile
+From ubuntu:latest
+RUN apt update -y
+RUN apt install openjdk-11-jre-headless -y
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apache-tomcat-9.0.73.tar.gz /opt/
+RUN tar -xvf /opt/apache-tomcat-9.0.73.tar.gz -C /opt/
+RUN ls /opt/
+ADD https://s3-us-west-2.amazonaws.com/studentapi-cit/student.war /opt/apache-tomcat-9.0.73/webapps/
+ADD https://s3-us-west-2.amazonaws.com/studentapi-cit/mysql-connector.jar /opt/apache-tomcat-9.0.73/lib/
+EXPOSE 8080
+CMD ./opt/apache-tomcat-9.0.73/bin/startup.sh; sleep inf
+		docker build -t tom .
+		docker pull mysql
+		docker network create mynetwork
+		docker network ls
+		docker images
+		docker run -d -p 8080:8080 --network mynetwork tom
+		docker run -d -e MYSQL_ROOT_PASSWORD=my-secret-pw --network mynetwork mysql
+		docker ps
+
+		http://<Instance public IP>:8080/student/ (Check student app)
+
+mysql>		mysql -h localhost -u root -pmy-secret-pw
+	create user 'admin' identified by '12345678';
+	grant all privileges on *.* to 'admin';
+	flush privileges;
+
+	CREATE DATABASE studentapp;
+	use studentapp;
+CREATE TABLE if not exists students(student_id INT NOT NULL AUTO_INCREMENT,
+  student_name VARCHAR(100) NOT NULL,
+  student_addr VARCHAR(100) NOT NULL,
+  student_age VARCHAR(3) NOT NULL,
+  student_qual VARCHAR(20) NOT NULL,
+  student_percent VARCHAR(10) NOT NULL,
+  student_year_passed VARCHAR(10) NOT NULL,
+  PRIMARY KEY (student_id)
+  );
+mysql>		exit
+bash-4.4# exit
+	docker ps
+	docker inspect <mysql container id> (copy container IP)
+	docker exec -it <tomcat container id> /bin/bash
+	cd opt/apache-tomcat-9.0.73
+	apt install vim -y
+	cd conf/
+	vim context.xml
+<Resource name="jdbc/TestDB" auth="Container" type="javax.sql.DataSource" maxTotal="500" maxIdle="30" maxWaitMillis="1000" username="admin" password="12345678" driverClassName="com.mysql.jdbc.Driver"url="jdbc:mysql://<mysql container id>:3306/studentapp?useUnicode=yes&amp;characterEncoding=utf8"/>
+		cd ../bin/
+./catalina.sh stop
+./catalina.sh start
+
+http://<Instance public IP>:8080/student/ (Register details in StudentApp and it will be saved in DB)
